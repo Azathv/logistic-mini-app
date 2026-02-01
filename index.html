@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logistik Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h2>🚚 Logistik Mini App</h2>
+  <p id="user"></p>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+
+    const user = tg.initDataUnsafe.user;
+
+    if (user) {
+      document.getElementById("user").innerText =
+        "Salom, " + user.first_name + " 👋";
+    } else {
+      document.getElementById("user").innerText =
+        "Telegram orqali kiring";
+    }
+  </script>
+</body>
+</html>
