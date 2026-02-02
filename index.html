@@ -4,10 +4,56 @@
   <meta charset="UTF-8">
   <title>Logistik Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 15px;
+    }
+    h2 {
+      margin-bottom: 5px;
+    }
+    .box {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: #2ea6ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
 </head>
+
 <body>
-  <h2>🚚 Logistik Mini App</h2>
-  <p id="user"></p>
+  <h2 id="hello">Salom 👋</h2>
+
+  <div class="box">
+    <label>
+      <input type="checkbox" id="useTelegram" checked />
+      Telegram orqali bog‘lanish
+    </label>
+  </div>
+
+  <div class="box">
+    <label>
+      Telefon raqam (ixtiyoriy)
+    </label>
+    <input type="text" id="phone" placeholder="+998..." />
+  </div>
+
+  <button onclick="saveData()">Saqlash</button>
 
   <script>
     const tg = window.Telegram.WebApp;
@@ -16,11 +62,18 @@
     const user = tg.initDataUnsafe.user;
 
     if (user) {
-      document.getElementById("user").innerText =
+      document.getElementById("hello").innerText =
         "Salom, " + user.first_name + " 👋";
-    } else {
-      document.getElementById("user").innerText =
-        "Telegram orqali kiring";
+    }
+
+    function saveData() {
+      const data = {
+        telegram: document.getElementById("useTelegram").checked,
+        phone: document.getElementById("phone").value
+      };
+
+      tg.sendData(JSON.stringify(data));
+      alert("Maʼlumot saqlandi (hozircha vaqtincha)");
     }
   </script>
 </body>
