@@ -3,35 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <title>Yuklar Go</title>
+
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #1f1f1f;
-      color: white;
-      padding: 15px;
+      background-color: #ffffff;
+      color: #000000;
+      padding: 20px;
     }
     h2 {
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
     .box {
-      background: #2a2a2a;
-      padding: 12px;
+      border: 1px solid #ddd;
       border-radius: 10px;
+      padding: 12px;
       margin-bottom: 12px;
     }
-    input[type="text"] {
+    input {
       width: 100%;
       padding: 10px;
-      border-radius: 8px;
-      border: none;
       margin-top: 6px;
-      font-size: 15px;
-    }
-    label {
       font-size: 15px;
     }
     button {
       width: 100%;
       padding: 12px;
-      border
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 id="hello">Salom 👋</h2>
+
+  <div class="box">
+    <label>
+      <input type="checkbox" id="useTelegram" checked>
+      Telegram orqali bog‘lanish
+    </label>
+  </div>
+
+  <div class="box">
+    <label>Telefon raqam (ixtiyoriy)</label>
+    <input type="text" id="phone" placeholder="+998...">
+  </div>
+
+  <button onclick="saveData()">Saqlash</button>
+  <button onclick="openOrder()">➕ Yangi buyurtma</button>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        document.getElementById("hello").innerText =
+          "Salom, " + tg.initDataUnsafe.user.first_name + " 👋";
+      }
+    }
+
+    function saveData() {
+      alert("Aloqa maʼlumotlari saqlandi");
+    }
+
+    function openOrder() {
+      alert("Buyurtma formasi keyingi bosqichda");
+    }
+  </script>
+
+</body>
+</html>
