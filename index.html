@@ -63,27 +63,33 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
-    
-  apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
-  authDomain: "yukbor-d494b.firebaseapp.com",
-  projectId: "yukbor-d494b",
-  storageBucket: "yukbor-d494b.firebasestorage.app",
-  messagingSenderId: "148070622007",
-  appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
-
+    apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
+    authDomain: "yukbor-d494b.firebaseapp.com",
+    projectId: "yukbor-d494b",
+    storageBucket: "yukbor-d494b.firebasestorage.app",
+    messagingSenderId: "148070622007",
+    appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  // Telegram user avtomat qo‘yiladi
   if (window.Telegram?.WebApp) {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user;
     if (user?.username) {
-      document.getElementById("contact").value = "@" + user.username;
+      contact.value = "@" + user.username;
     }
   }
 
@@ -92,11 +98,20 @@
     add.classList.remove("hidden");
   };
 
+  // 🔥 72 SOATLIK YUKLARNI CHIQARISH
   window.openList = async function () {
     hideAll();
     list.innerHTML = "<h3>📦 Yuklar</h3>";
 
-    const snap = await getDocs(collection(db, "loads"));
+    const now = Date.now();
+    const limitTime = now - (72 * 60 * 60 * 1000);
+
+    const q = query(
+      collection(db, "loads"),
+      where("time", ">=", limitTime)
+    );
+
+    const snap = await getDocs(q);
 
     if (snap.empty) {
       list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
@@ -109,20 +124,22 @@
           <b>${l.from} → ${l.to}</b><br>
           Yuk: ${l.weight}<br>
           Aloqa: ${l.contact}
-        </div>`;
+        </div>
+      `;
     });
 
     list.innerHTML += `<button onclick="back()">← Orqaga</button>`;
     list.classList.remove("hidden");
   };
 
+  // 💾 SAQLASH
   window.save = async function () {
     if (!from.value || !to.value || !weight.value) {
       alert("Hamma maydonni to‘ldiring");
       return;
     }
 
-    let contactValue = "";
+    let contactValue = "Aloqa yo‘q";
     if (useTg.checked) {
       contactValue = contact.value || "Telegram orqali";
     }
@@ -149,6 +166,3 @@
     list.classList.add("hidden");
   }
 </script>
-
-</body>
-</html>
