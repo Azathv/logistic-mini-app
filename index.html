@@ -3,39 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>Logistika</title>
+
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 🔴 SHU YERGA O'ZINGNI FIREBASE CONFIG'NI QO'Y
+    const firebaseConfig = {
+      PASTE_HERE
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.getDocs = getDocs;
+  </script>
+
   <style>
-    body {
-      background:#0f0f0f;
-      color:white;
-      font-family:Arial;
-      padding:15px;
-    }
+    body { background:#0f0f0f; color:white; font-family:Arial; padding:15px; }
     h2 { text-align:center; }
-    button {
-      width:100%;
-      padding:14px;
-      margin:8px 0;
-      font-size:16px;
-      background:#2ea6ff;
-      color:white;
-      border:none;
-      border-radius:10px;
-    }
-    input {
-      width:100%;
-      padding:10px;
-      margin:6px 0;
-      border-radius:8px;
-      border:none;
-    }
-    .card {
-      background:#1c1c1c;
-      padding:10px;
-      margin-top:10px;
-      border-radius:8px;
-    }
+    button { width:100%; padding:14px; margin:8px 0; font-size:16px;
+      background:#2ea6ff; color:white; border:none; border-radius:10px; }
+    input { width:100%; padding:10px; margin:6px 0; border-radius:8px; border:none; }
+    .card { background:#1c1c1c; padding:10px; margin-top:10px; border-radius:8px; }
     .hidden { display:none; }
+    label { font-size:14px; }
   </style>
 </head>
 
@@ -52,7 +51,13 @@
   <input id="from" placeholder="Qayerdan">
   <input id="to" placeholder="Qayerga">
   <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
+
+  <label>
+    <input type="checkbox" id="useTg" checked>
+    Telegram orqali bog‘lanish
+  </label>
   <input id="contact" placeholder="Telegram yoki tel">
+
   <button onclick="save()">Saqlash</button>
   <button onclick="back()">⬅ Orqaga</button>
 </div>
@@ -60,24 +65,31 @@
 <div id="list" class="hidden"></div>
 
 <script>
-  if (window.Telegram?.WebApp) Telegram.WebApp.expand();
-
-  let loads = JSON.parse(localStorage.getItem("loads") || "[]");
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.expand();
+    const user = Telegram.WebApp.initDataUnsafe?.user;
+    if (user?.username) {
+      contact.value = "@" + user.username;
+    }
+  }
 
   function openAdd() {
     hideAll();
     add.classList.remove("hidden");
   }
 
-  function openList() {
+  async function openList() {
     hideAll();
     list.innerHTML = "<h3>📦 Yuklar</h3>";
 
-    if (loads.length === 0) {
+    const querySnapshot = await getDocs(collection(db, "loads"));
+
+    if (querySnapshot.empty) {
       list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
     }
 
-    loads.forEach(l => {
+    querySnapshot.forEach(doc => {
+      const l = doc.data();
       list.innerHTML += `
         <div class="card">
           <b>${l.from} → ${l.to}</b><br>
@@ -90,20 +102,25 @@
     list.classList.remove("hidden");
   }
 
-  function save() {
+  async function save() {
     if (!from.value || !to.value || !weight.value) {
       alert("Hamma maydonni to‘ldir");
       return;
     }
 
-    loads.push({
+    let contactValue = "";
+    if (useTg.checked) {
+      contactValue = contact.value || "Telegram orqali";
+    }
+
+    await addDoc(collection(db, "loads"), {
       from: from.value,
       to: to.value,
       weight: weight.value,
-      contact: contact.value || "Telegram orqali"
+      contact: contactValue,
+      time: Date.now()
     });
 
-    localStorage.setItem("loads", JSON.stringify(loads));
     back();
   }
 
