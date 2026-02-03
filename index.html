@@ -4,50 +4,30 @@
   <meta charset="UTF-8">
   <title>Logistika</title>
 
-  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
-  authDomain: "yukbor-d494b.firebaseapp.com",
-  projectId: "yukbor-d494b",
-  storageBucket: "yukbor-d494b.firebasestorage.app",
-  messagingSenderId: "148070622007",
-  appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.db = db;
-    window.collection = collection;
-    window.addDoc = addDoc;
-    window.getDocs = getDocs;
-  </script>
 
   <style>
     body { background:#0f0f0f; color:white; font-family:Arial; padding:15px; }
     h2 { text-align:center; }
-    button { width:100%; padding:14px; margin:8px 0; font-size:16px;
-      background:#2ea6ff; color:white; border:none; border-radius:10px; }
-    input { width:100%; padding:10px; margin:6px 0; border-radius:8px; border:none; }
-    .card { background:#1c1c1c; padding:10px; margin-top:10px; border-radius:8px; }
+    button {
+      width:100%; padding:14px; margin:8px 0; font-size:16px;
+      background:#2ea6ff; color:white; border:none; border-radius:10px;
+    }
+    input {
+      width:100%; padding:10px; margin:6px 0;
+      border-radius:8px; border:none;
+    }
+    .card {
+      background:#1c1c1c; padding:10px;
+      margin-top:10px; border-radius:8px;
+    }
     .hidden { display:none; }
-    label { font-size:14px; }
+    .hint {
+      font-size:12px;
+      color:#aaa;
+      font-style:italic;
+      margin-bottom:6px;
+    }
   </style>
 </head>
 
@@ -69,40 +49,70 @@ const app = initializeApp(firebaseConfig);
     <input type="checkbox" id="useTg" checked>
     Telegram orqali bog‘lanish
   </label>
-  <input id="contact" placeholder="Telegram yoki tel">
+  <div class="hint">
+    Tg useringiz ko‘rinishi uchun belgini yoqing
+  </div>
+
+  <input id="contact" placeholder="Telegram yoki telefon raqam">
 
   <button onclick="save()">Saqlash</button>
-  <button onclick="back()">⬅ Orqaga</button>
+  <button onclick="back()">← Orqaga</button>
 </div>
 
 <div id="list" class="hidden"></div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
+  authDomain: "yukbor-d494b.firebaseapp.com",
+  projectId: "yukbor-d494b",
+  storageBucket: "yukbor-d494b.firebasestorage.app",
+  messagingSenderId: "148070622007",
+  appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
   if (window.Telegram?.WebApp) {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user;
     if (user?.username) {
-      contact.value = "@" + user.username;
+      document.getElementById("contact").value = "@" + user.username;
     }
   }
 
-  function openAdd() {
+  window.openAdd = function () {
     hideAll();
     add.classList.remove("hidden");
-  }
+  };
 
-  async function openList() {
+  window.openList = async function () {
     hideAll();
     list.innerHTML = "<h3>📦 Yuklar</h3>";
 
-    const querySnapshot = await getDocs(collection(db, "loads"));
+    const snap = await getDocs(collection(db, "loads"));
 
-    if (querySnapshot.empty) {
+    if (snap.empty) {
       list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
     }
 
-    querySnapshot.forEach(doc => {
-      const l = doc.data();
+    snap.forEach(d => {
+      const l = d.data();
       list.innerHTML += `
         <div class="card">
           <b>${l.from} → ${l.to}</b><br>
@@ -111,13 +121,13 @@ const app = initializeApp(firebaseConfig);
         </div>`;
     });
 
-    list.innerHTML += `<button onclick="back()">⬅ Orqaga</button>`;
+    list.innerHTML += `<button onclick="back()">← Orqaga</button>`;
     list.classList.remove("hidden");
-  }
+  };
 
-  async function save() {
+  window.save = async function () {
     if (!from.value || !to.value || !weight.value) {
-      alert("Hamma maydonni to‘ldir");
+      alert("Hamma maydonni to‘ldiring");
       return;
     }
 
@@ -135,12 +145,12 @@ const app = initializeApp(firebaseConfig);
     });
 
     back();
-  }
+  };
 
-  function back() {
+  window.back = function () {
     hideAll();
     home.classList.remove("hidden");
-  }
+  };
 
   function hideAll() {
     home.classList.add("hidden");
