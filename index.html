@@ -1,39 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <title>Yuklar Go</title>
+  <meta charset="UTF-8" />
+  <title>Logistika Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
     body {
+      background: #0f0f0f;
+      color: #fff;
       font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #000;
-      padding: 20px;
+      padding: 15px;
     }
     h2 {
-      margin-bottom: 10px;
-    }
-    .box {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      font-size: 15px;
+      text-align: center;
     }
     button {
       width: 100%;
       padding: 12px;
+      margin: 8px 0;
       font-size: 16px;
+      background: #2ea6ff;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: none;
+    }
+    .card {
+      background: #1c1c1c;
+      padding: 10px;
+      border-radius: 8px;
       margin-top: 10px;
     }
-    #orderForm {
+    .hidden {
       display: none;
     }
   </style>
@@ -41,78 +46,76 @@
 
 <body>
 
-  <h2 id="hello">Salom 👋</h2>
+<h2>🚚 Logistika</h2>
 
-  <!-- Aloqa sozlamalari -->
-  <div class="box">
-    <label>
-      <input type="checkbox" id="useTelegram" checked>
-      Telegram orqali bog‘lanish
-    </label>
-  </div>
+<div id="main">
+  <button onclick="showAdd()">➕ Yuk joylash</button>
+  <button onclick="showList()">📦 Yuklar</button>
+</div>
 
-  <div class="box">
-    <label>Telefon raqam (ixtiyoriy)</label>
-    <input type="text" id="phone" placeholder="+998...">
-  </div>
+<div id="add" class="hidden">
+  <input id="from" placeholder="Qayerdan" />
+  <input id="to" placeholder="Qayerga" />
+  <input id="weight" placeholder="Yuk (masalan: 3 tonna)" />
+  <input id="contact" placeholder="Tel yoki Telegram (@username)" />
+  <button onclick="saveLoad()">Saqlash</button>
+  <button onclick="back()">⬅ Orqaga</button>
+</div>
 
-  <button onclick="saveProfile()">Saqlash</button>
+<div id="list" class="hidden"></div>
 
-  <button onclick="openOrder()">➕ Yangi buyurtma</button>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
 
-  <!-- BUYURTMA FORMASI -->
-  <div id="orderForm">
-    <h3>📦 Yangi buyurtma</h3>
+  let loads = JSON.parse(localStorage.getItem("loads") || "[]");
 
-    <div class="box">
-      <label>Qayerdan</label>
-      <input type="text" id="from" placeholder="Masalan: Chilonzor">
-    </div>
+  function showAdd() {
+    hideAll();
+    document.getElementById("add").classList.remove("hidden");
+  }
 
-    <div class="box">
-      <label>Qayerga</label>
-      <input type="text" id="to" placeholder="Masalan: Yunusobod">
-    </div>
+  function showList() {
+    hideAll();
+    const list = document.getElementById("list");
+    list.innerHTML = "<h3>📦 Yuklar ro‘yxati</h3>";
 
-    <div class="box">
-      <label>Izoh (ixtiyoriy)</label>
-      <textarea id="comment" rows="3"></textarea>
-    </div>
-
-    <button onclick="submitOrder()">📤 Yuborish</button>
-  </div>
-
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      document.getElementById("hello").innerText =
-        "Salom, " + tg.initDataUnsafe.user.first_name + " 👋";
+    if (loads.length === 0) {
+      list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
     }
 
-    function saveProfile() {
-      alert("Profil saqlandi (vaqtincha)");
-    }
+    loads.forEach(l => {
+      list.innerHTML += `
+        <div class="card">
+          <b>${l.from} → ${l.to}</b><br>
+          Yuk: ${l.weight}<br>
+          Aloqa: ${l.contact}
+        </div>
+      `;
+    });
 
-    function openOrder() {
-      document.getElementById("orderForm").style.display = "block";
-      tg.expand();
-    }
+    list.innerHTML += `<button onclick="back()">⬅ Orqaga</button>`;
+    list.classList.remove("hidden");
+  }
 
-    function submitOrder() {
-      const order = {
-        from: document.getElementById("from").value,
-        to: document.getElementById("to").value,
-        comment: document.getElementById("comment").value
-      };
+  function saveLoad() {
+    const data = {
+      from: from.value,
+      to: to.value,
+      weight: weight.value,
+      contact: contact.value
+    };
 
-      alert(
-        "Buyurtma yuborildi:\n" +
-        order.from + " → " + order.to
-      );
-    }
-  </script>
+    loads.push(data);
+    localStorage.setItem("loads", JSON.stringify(loads));
+    alert("Yuk qo‘shildi");
+    back();
+  }
 
-</body>
-</html>
+  function back() {
+    hideAll();
+    document.getElementById("main").classList.remove("hidden");
+  }
+
+  function hideAll() {
+    document.getElementById("main").classList.add("hidden");
