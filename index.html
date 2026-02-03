@@ -6,21 +6,36 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      background: black;
-      color: white;
-      font-family: Arial;
-      padding: 20px;
+      background:#0f0f0f;
+      color:white;
+      font-family:Arial;
+      padding:15px;
     }
+    h2 { text-align:center; }
     button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      font-size: 18px;
-      background: #2ea6ff;
-      color: white;
-      border: none;
-      border-radius: 10px;
+      width:100%;
+      padding:14px;
+      margin:8px 0;
+      font-size:16px;
+      background:#2ea6ff;
+      color:white;
+      border:none;
+      border-radius:10px;
     }
+    input {
+      width:100%;
+      padding:10px;
+      margin:6px 0;
+      border-radius:8px;
+      border:none;
+    }
+    .card {
+      background:#1c1c1c;
+      padding:10px;
+      margin-top:10px;
+      border-radius:8px;
+    }
+    .hidden { display:none; }
   </style>
 </head>
 
@@ -28,22 +43,79 @@
 
 <h2>🚚 Logistika</h2>
 
-<button id="addBtn">➕ Yuk joylash</button>
-<button id="listBtn">📦 Yuklar</button>
+<div id="home">
+  <button onclick="openAdd()">➕ Yuk joylash</button>
+  <button onclick="openList()">📦 Yuklar</button>
+</div>
+
+<div id="add" class="hidden">
+  <input id="from" placeholder="Qayerdan">
+  <input id="to" placeholder="Qayerga">
+  <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
+  <input id="contact" placeholder="Telegram yoki tel">
+  <button onclick="save()">Saqlash</button>
+  <button onclick="back()">⬅ Orqaga</button>
+</div>
+
+<div id="list" class="hidden"></div>
 
 <script>
-  alert("JS ISHLADI ✅");
+  if (window.Telegram?.WebApp) Telegram.WebApp.expand();
 
-  document.getElementById("addBtn").onclick = function () {
-    alert("Yuk joylash bosildi");
-  };
+  let loads = JSON.parse(localStorage.getItem("loads") || "[]");
 
-  document.getElementById("listBtn").onclick = function () {
-    alert("Yuklar bosildi");
-  };
+  function openAdd() {
+    hideAll();
+    add.classList.remove("hidden");
+  }
 
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.expand();
+  function openList() {
+    hideAll();
+    list.innerHTML = "<h3>📦 Yuklar</h3>";
+
+    if (loads.length === 0) {
+      list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
+    }
+
+    loads.forEach(l => {
+      list.innerHTML += `
+        <div class="card">
+          <b>${l.from} → ${l.to}</b><br>
+          Yuk: ${l.weight}<br>
+          Aloqa: ${l.contact}
+        </div>`;
+    });
+
+    list.innerHTML += `<button onclick="back()">⬅ Orqaga</button>`;
+    list.classList.remove("hidden");
+  }
+
+  function save() {
+    if (!from.value || !to.value || !weight.value) {
+      alert("Hamma maydonni to‘ldir");
+      return;
+    }
+
+    loads.push({
+      from: from.value,
+      to: to.value,
+      weight: weight.value,
+      contact: contact.value || "Telegram orqali"
+    });
+
+    localStorage.setItem("loads", JSON.stringify(loads));
+    back();
+  }
+
+  function back() {
+    hideAll();
+    home.classList.remove("hidden");
+  }
+
+  function hideAll() {
+    home.classList.add("hidden");
+    add.classList.add("hidden");
+    list.classList.add("hidden");
   }
 </script>
 
