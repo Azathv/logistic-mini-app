@@ -10,239 +10,187 @@
 body {
   background:#0f0f0f;
   color:white;
-  font-family:Arial;
-  padding:15px;
+  font-family:Arial, sans-serif;
+  padding:14px;
+  margin:0;
 }
 
-h2 { text-align:center; }
+/* HEADER */
+.header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.header img {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+}
+.header .hello {
+  font-size:16px;
+  font-weight:600;
+}
 
+/* TABS */
+.tabs {
+  display:flex;
+  gap:6px;
+  margin-bottom:12px;
+}
+.tab {
+  flex:1;
+  padding:10px;
+  text-align:center;
+  border-radius:10px;
+  background:#1c1c1c;
+  font-size:14px;
+  cursor:pointer;
+}
+.tab.active {
+  background:#2ea6ff;
+}
+
+/* BUTTONS */
 button {
   width:100%;
-  padding:22px;
-  margin:12px 0;
-  font-size:20px;
+  padding:16px;
+  margin:8px 0;
+  font-size:16px;
   font-weight:600;
   background:#2ea6ff;
   color:white;
   border:none;
-  border-radius:16px;
+  border-radius:14px;
 }
 
-input {
+/* INPUTS */
+input, select {
   width:100%;
-  padding:14px;
-  margin:8px 0;
+  padding:12px;
+  margin:6px 0;
   border-radius:10px;
   border:none;
-  font-size:16px;
+  font-size:15px;
 }
 
+/* CARD */
 .card {
   background:#1c1c1c;
   padding:12px;
-  margin-top:12px;
+  margin-top:10px;
+  border-radius:12px;
+}
+.card img {
+  width:100%;
   border-radius:10px;
+  margin-bottom:8px;
 }
 
-.hidden { display:none; }
-
-.hint {
+.location {
   font-size:12px;
-  color:#aaa;
+  color:rgba(255,255,255,0.5);
   font-style:italic;
-  margin-bottom:6px;
+  margin-top:6px;
 }
 
 .time {
   font-size:12px;
   color:rgba(255,255,255,0.5);
-  margin-top:6px;
+  margin-top:4px;
 }
 
-.header {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:20px;
-}
-
-.avatar {
-  width:42px;
-  height:42px;
-  border-radius:50%;
-}
+.hidden { display:none; }
 </style>
 </head>
 
 <body>
 
-<div class="header" id="userHeader"></div>
-
-<div id="home">
-  <button onclick="openAdd()">➕ Yuk joylash</button>
-  <button onclick="openList()">📦 Yuklar</button>
+<!-- HEADER -->
+<div class="header">
+  <img id="avatar" src="">
+  <div class="hello" id="hello">Salom</div>
 </div>
 
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('yengil')">🚗 Yengil</div>
+  <div class="tab" onclick="switchTab('orta')">🚐 O‘rta</div>
+  <div class="tab" onclick="switchTab('ogir')">🚚 Og‘ir</div>
+</div>
+
+<!-- HOME -->
+<div id="home">
+  <button onclick="openAdd()">➕ Yuk joylash</button>
+</div>
+
+<!-- ADD -->
 <div id="add" class="hidden">
+
+  <select id="category">
+    <option value="yengil">🚗 Yengil</option>
+    <option value="orta">🚐 O‘rta</option>
+    <option value="ogir">🚚 Og‘ir</option>
+  </select>
+
+  <select id="region">
+    <option>Toshkent</option>
+    <option>Samarqand</option>
+    <option>Andijon</option>
+  </select>
+
+  <select id="district">
+    <option>Yunusobod</option>
+    <option>Chilonzor</option>
+    <option>Mirzo Ulug‘bek</option>
+  </select>
+
   <input id="from" placeholder="Qayerdan">
   <input id="to" placeholder="Qayerga">
   <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
+  <input type="file" id="image">
 
-  <label>
-    <input type="checkbox" id="useTg" checked>
-    Telegram orqali bog‘lanish
-  </label>
-
-  <div class="hint">Tg useringiz ko‘rinishi uchun belgini yoqing</div>
-
-  <input id="contact" placeholder="Telegram yoki telefon raqam">
+  <input id="contact" placeholder="Telegram yoki telefon">
 
   <button onclick="save()">Saqlash</button>
   <button onclick="back()">← Orqaga</button>
 </div>
 
-<div id="list" class="hidden"></div>
+<!-- LIST -->
+<div id="list"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
-  authDomain: "yukbor-d494b.firebaseapp.com",
-  projectId: "yukbor-d494b",
-  storageBucket: "yukbor-d494b.firebasestorage.app",
-  messagingSenderId: "148070622007",
-  appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ====== SAHIFA HOLATI ====== */
-function setPage(p) {
-  localStorage.setItem("page", p);
-}
-
-function safeHome() {
-  hideAll();
-  home.classList.remove("hidden");
-  setPage("home");
-}
-
-/* ====== TELEGRAM USER ====== */
+<script>
+/* TELEGRAM USER */
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.expand();
   const user = Telegram.WebApp.initDataUnsafe?.user;
-
   if (user) {
-    userHeader.innerHTML = `
-      <img class="avatar" src="https://t.me/i/userpic/320/${user.username}.jpg">
-      <div>Salom, <b>${user.first_name}</b></div>
-    `;
+    document.getElementById("hello").innerText = "Salom, " + user.first_name;
+    if (user.photo_url) {
+      document.getElementById("avatar").src = user.photo_url;
+    }
     if (user.username) {
       contact.value = "@" + user.username;
     }
   }
 }
 
-/* ====== NAVIGATSIYA ====== */
-window.openAdd = function () {
-  hideAll();
-  add.classList.remove("hidden");
-  setPage("add");
-};
-
-window.openList = async function () {
-  hideAll();
-  list.innerHTML = "<h3>📦 Yuklar</h3>";
-  setPage("list");
-
-  const limitTime = Date.now() - (72 * 60 * 60 * 1000);
-
-  const q = query(
-    collection(db, "loads"),
-    where("time", ">=", limitTime),
-    orderBy("time", "desc")
-  );
-
-  const snap = await getDocs(q);
-
-  if (snap.empty) {
-    list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
-  }
-
-  snap.forEach(d => {
-    const l = d.data();
-    const date = new Date(l.time);
-    const formattedTime =
-      date.toLocaleDateString("uz-UZ") +
-      " · " +
-      date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
-
-    list.innerHTML += `
-      <div class="card">
-        <b>${l.from} → ${l.to}</b><br>
-        Yuk: ${l.weight}<br>
-        Aloqa: ${l.contact}
-        <div class="time">${formattedTime}</div>
-      </div>
-    `;
-  });
-
-  list.innerHTML += `<button onclick="back()">← Orqaga</button>`;
-  list.classList.remove("hidden");
-};
-
-window.save = async function () {
-  if (!from.value || !to.value || !weight.value) {
-    alert("Hamma maydonni to‘ldiring");
-    return;
-  }
-
-  let contactValue = "Aloqa yo‘q";
-  if (useTg.checked) {
-    contactValue = contact.value || "Telegram orqali";
-  }
-
-  await addDoc(collection(db, "loads"), {
-    from: from.value,
-    to: to.value,
-    weight: weight.value,
-    contact: contactValue,
-    time: Date.now()
-  });
-
-  safeHome();
-};
-
-window.back = function () {
-  safeHome();
-};
-
-function hideAll() {
+/* UI LOGIC */
+function openAdd() {
   home.classList.add("hidden");
-  add.classList.add("hidden");
-  list.classList.add("hidden");
+  add.classList.remove("hidden");
 }
 
-/* ====== ENG MUHIM JOY ====== */
-window.onload = () => {
-  const p = localStorage.getItem("page");
-  if (p === "list") openList();
-  else if (p === "add") openAdd();
-  else safeHome();
-};
-</script>
+function back() {
+  add.classList.add("hidden");
+  home.classList.remove("hidden");
+}
 
+function switchTab(type) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+}
+</script>
 
 </body>
 </html>
