@@ -18,29 +18,30 @@ h2 { text-align:center; }
 
 button {
   width:100%;
-  padding:18px;
-  margin:10px 0;
-  font-size:18px;
+  padding:22px;
+  margin:12px 0;
+  font-size:20px;
   font-weight:600;
   background:#2ea6ff;
   color:white;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
 }
 
 input {
   width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:8px;
+  padding:14px;
+  margin:8px 0;
+  border-radius:10px;
   border:none;
+  font-size:16px;
 }
 
 .card {
   background:#1c1c1c;
-  padding:10px;
-  margin-top:10px;
-  border-radius:8px;
+  padding:12px;
+  margin-top:12px;
+  border-radius:10px;
 }
 
 .hidden { display:none; }
@@ -57,12 +58,25 @@ input {
   color:rgba(255,255,255,0.5);
   margin-top:6px;
 }
+
+.header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.avatar {
+  width:42px;
+  height:42px;
+  border-radius:50%;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🚚 YuklaGo</h2>
+<div class="header" id="userHeader"></div>
 
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
@@ -97,7 +111,8 @@ import {
   addDoc,
   getDocs,
   query,
-  where
+  where,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -112,29 +127,51 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Telegram username avtomat
+// Telegram user info
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.expand();
   const user = Telegram.WebApp.initDataUnsafe?.user;
-  if (user?.username) {
-    contact.value = "@" + user.username;
+
+  if (user) {
+    userHeader.innerHTML = `
+      <img class="avatar" src="https://t.me/i/userpic/320/${user.username}.jpg">
+      <div>Salom, <b>${user.first_name}</b></div>
+    `;
+    if (user.username) {
+      contact.value = "@" + user.username;
+    }
   }
 }
+
+// Sahifa holatini saqlash
+function setPage(p) {
+  localStorage.setItem("page", p);
+}
+
+function restorePage() {
+  const p = localStorage.getItem("page");
+  if (p === "add") openAdd();
+  else if (p === "list") openList();
+}
+restorePage();
 
 window.openAdd = function () {
   hideAll();
   add.classList.remove("hidden");
+  setPage("add");
 };
 
 window.openList = async function () {
   hideAll();
   list.innerHTML = "<h3>📦 Yuklar</h3>";
+  setPage("list");
 
   const limitTime = Date.now() - (72 * 60 * 60 * 1000);
 
   const q = query(
     collection(db, "loads"),
-    where("time", ">=", limitTime)
+    where("time", ">=", limitTime),
+    orderBy("time", "desc")
   );
 
   const snap = await getDocs(q);
@@ -190,6 +227,7 @@ window.save = async function () {
 window.back = function () {
   hideAll();
   home.classList.remove("hidden");
+  setPage("home");
 };
 
 function hideAll() {
