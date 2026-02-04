@@ -127,7 +127,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Telegram user info
+/* ====== SAHIFA HOLATI ====== */
+function setPage(p) {
+  localStorage.setItem("page", p);
+}
+
+function safeHome() {
+  hideAll();
+  home.classList.remove("hidden");
+  setPage("home");
+}
+
+/* ====== TELEGRAM USER ====== */
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.expand();
   const user = Telegram.WebApp.initDataUnsafe?.user;
@@ -143,18 +154,7 @@ if (window.Telegram?.WebApp) {
   }
 }
 
-// Sahifa holatini saqlash
-function setPage(p) {
-  localStorage.setItem("page", p);
-}
-
-function restorePage() {
-  const p = localStorage.getItem("page");
-  if (p === "add") openAdd();
-  else if (p === "list") openList();
-}
-restorePage();
-
+/* ====== NAVIGATSIYA ====== */
 window.openAdd = function () {
   hideAll();
   add.classList.remove("hidden");
@@ -221,13 +221,11 @@ window.save = async function () {
     time: Date.now()
   });
 
-  back();
+  safeHome();
 };
 
 window.back = function () {
-  hideAll();
-  home.classList.remove("hidden");
-  setPage("home");
+  safeHome();
 };
 
 function hideAll() {
@@ -235,7 +233,16 @@ function hideAll() {
   add.classList.add("hidden");
   list.classList.add("hidden");
 }
+
+/* ====== ENG MUHIM JOY ====== */
+window.onload = () => {
+  const p = localStorage.getItem("page");
+  if (p === "list") openList();
+  else if (p === "add") openAdd();
+  else safeHome();
+};
 </script>
+
 
 </body>
 </html>
