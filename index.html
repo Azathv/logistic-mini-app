@@ -141,8 +141,21 @@
       `;
     });
 
-    list.innerHTML += `<button onclick="back()">← Orqaga</button>`;
-    list.classList.remove("hidden");
+const date = new Date(l.time);
+const formattedTime =
+  date.toLocaleDateString("uz-UZ") +
+  " · " +
+  date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
+
+list.innerHTML += `
+  <div class="card">
+    <b>${l.from} → ${l.to}</b><br>
+    Yuk: ${l.weight}<br>
+    Aloqa: ${l.contact}
+    <div class="time">${formattedTime}</div>
+  </div>
+`;
+
   
 
   // 💾 SAQLASH
