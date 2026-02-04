@@ -1,52 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>YuklaGo</title>
+<meta charset="UTF-8">
+<title>YuklaGo</title>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    body { background:#0f0f0f; color:white; font-family:Arial; padding:15px; }
-    h2 { text-align:center; }
-    button {
-  width: 100%;
-  padding: 18px;
-  margin: 10px 0;
-  font-size: 18px;
-  font-weight: 600;
-  background: #2ea6ff;
-  color: white;
-  border: none;
-  border-radius: 14px;
- }
- input {
-      width:100%; padding:10px; margin:6px 0;
-      border-radius:8px; border:none;
-    }
-    .card {
-      background:#1c1c1c; padding:10px;
-      margin-top:10px; border-radius:8px;
-    }
-    .hidden { display:none; }
-    .hint {
-      font-size:12px;
-      color:#aaa;
-      font-style:italic;
-      margin-bottom:6px;
-      .time {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 6px;
+<style>
+body {
+  background:#0f0f0f;
+  color:white;
+  font-family:Arial;
+  padding:15px;
 }
-    }
-  </style>
-  
+
+h2 { text-align:center; }
+
+button {
+  width:100%;
+  padding:18px;
+  margin:10px 0;
+  font-size:18px;
+  font-weight:600;
+  background:#2ea6ff;
+  color:white;
+  border:none;
+  border-radius:14px;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+}
+
+.card {
+  background:#1c1c1c;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+}
+
+.hidden { display:none; }
+
+.hint {
+  font-size:12px;
+  color:#aaa;
+  font-style:italic;
+  margin-bottom:6px;
+}
+
+.time {
+  font-size:12px;
+  color:rgba(255,255,255,0.5);
+  margin-top:6px;
+}
+</style>
 </head>
 
 <body>
 
-<h2>🚚 YuklaGo </h2>
+<h2>🚚 YuklaGo</h2>
 
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
@@ -62,9 +78,8 @@
     <input type="checkbox" id="useTg" checked>
     Telegram orqali bog‘lanish
   </label>
-  <div class="hint">
-    Tg useringiz ko‘rinishi uchun belgini yoqing
-  </div>
+
+  <div class="hint">Tg useringiz ko‘rinishi uchun belgini yoqing</div>
 
   <input id="contact" placeholder="Telegram yoki telefon raqam">
 
@@ -75,120 +90,114 @@
 <div id="list" class="hidden"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    where
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
-    authDomain: "yukbor-d494b.firebaseapp.com",
-    projectId: "yukbor-d494b",
-    storageBucket: "yukbor-d494b.firebasestorage.app",
-    messagingSenderId: "148070622007",
-    appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCyuEl9ikVisF06WYVPJgc73xblH3yL3Q8",
+  authDomain: "yukbor-d494b.firebaseapp.com",
+  projectId: "yukbor-d494b",
+  storageBucket: "yukbor-d494b.firebasestorage.app",
+  messagingSenderId: "148070622007",
+  appId: "1:148070622007:web:c5edc5088fffafd170b0b2"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // Telegram user avtomat qo‘yiladi
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe?.user;
-    if (user?.username) {
-      contact.value = "@" + user.username;
-    }
+// Telegram username avtomat
+if (window.Telegram?.WebApp) {
+  Telegram.WebApp.expand();
+  const user = Telegram.WebApp.initDataUnsafe?.user;
+  if (user?.username) {
+    contact.value = "@" + user.username;
+  }
+}
+
+window.openAdd = function () {
+  hideAll();
+  add.classList.remove("hidden");
+};
+
+window.openList = async function () {
+  hideAll();
+  list.innerHTML = "<h3>📦 Yuklar</h3>";
+
+  const limitTime = Date.now() - (72 * 60 * 60 * 1000);
+
+  const q = query(
+    collection(db, "loads"),
+    where("time", ">=", limitTime)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
   }
 
-  window.openAdd = function () {
-    hideAll();
-    add.classList.remove("hidden");
-  };
+  snap.forEach(d => {
+    const l = d.data();
+    const date = new Date(l.time);
+    const formattedTime =
+      date.toLocaleDateString("uz-UZ") +
+      " · " +
+      date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
 
-  // 🔥 72 SOATLIK YUKLARNI CHIQARISH
-  window.openList = async function () {
-    hideAll();
-    list.innerHTML = "<h3>📦 Yuklar</h3>";
+    list.innerHTML += `
+      <div class="card">
+        <b>${l.from} → ${l.to}</b><br>
+        Yuk: ${l.weight}<br>
+        Aloqa: ${l.contact}
+        <div class="time">${formattedTime}</div>
+      </div>
+    `;
+  });
 
-    const now = Date.now();
-    const limitTime = now - (72 * 60 * 60 * 1000);
+  list.innerHTML += `<button onclick="back()">← Orqaga</button>`;
+  list.classList.remove("hidden");
+};
 
-    const q = query(
-      collection(db, "loads"),
-      where("time", ">=", limitTime)
-    );
-
-    const snap = await getDocs(q);
-
-    if (snap.empty) {
-      list.innerHTML += "<p>Hozircha yuk yo‘q</p>";
-    }
-
-    snap.forEach(d => {
-      const l = d.data();
-      list.innerHTML += `
-        <div class="card">
-          <b>${l.from} → ${l.to}</b><br>
-          Yuk: ${l.weight}<br>
-          Aloqa: ${l.contact}
-        </div>
-      `;
-    });
-
-const date = new Date(l.time);
-const formattedTime =
-  date.toLocaleDateString("uz-UZ") +
-  " · " +
-  date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
-
-list.innerHTML += `
-  <div class="card">
-    <b>${l.from} → ${l.to}</b><br>
-    Yuk: ${l.weight}<br>
-    Aloqa: ${l.contact}
-    <div class="time">${formattedTime}</div>
-  </div>
-`;
-
-  
-
-  // 💾 SAQLASH
-  window.save = async function () {
-    if (!from.value || !to.value || !weight.value) {
-      alert("Hamma maydonni to‘ldiring");
-      return;
-    }
-
-    let contactValue = "Aloqa yo‘q";
-    if (useTg.checked) {
-      contactValue = contact.value || "Telegram orqali";
-    }
-
-    await addDoc(collection(db, "loads"), {
-      from: from.value,
-      to: to.value,
-      weight: weight.value,
-      contact: contactValue,
-      time: Date.now()
-    });
-
-    back();
-  };
-
-  window.back = function () {
-    hideAll();
-    home.classList.remove("hidden");
-  };
-
-  function hideAll() {
-    home.classList.add("hidden");
-    add.classList.add("hidden");
-    list.classList.add("hidden");
+window.save = async function () {
+  if (!from.value || !to.value || !weight.value) {
+    alert("Hamma maydonni to‘ldiring");
+    return;
   }
+
+  let contactValue = "Aloqa yo‘q";
+  if (useTg.checked) {
+    contactValue = contact.value || "Telegram orqali";
+  }
+
+  await addDoc(collection(db, "loads"), {
+    from: from.value,
+    to: to.value,
+    weight: weight.value,
+    contact: contactValue,
+    time: Date.now()
+  });
+
+  back();
+};
+
+window.back = function () {
+  hideAll();
+  home.classList.remove("hidden");
+};
+
+function hideAll() {
+  home.classList.add("hidden");
+  add.classList.add("hidden");
+  list.classList.add("hidden");
+}
 </script>
+
+</body>
+</html>
