@@ -15,7 +15,6 @@ body {
   margin:0;
 }
 
-/* HEADER */
 .header {
   display:flex;
   align-items:center;
@@ -27,12 +26,11 @@ body {
   height:40px;
   border-radius:50%;
 }
-.header .hello {
+.hello {
   font-size:16px;
   font-weight:600;
 }
 
-/* TABS */
 .tabs {
   display:flex;
   gap:6px;
@@ -51,7 +49,6 @@ body {
   background:#2ea6ff;
 }
 
-/* BUTTONS */
 button {
   width:100%;
   padding:16px;
@@ -64,7 +61,6 @@ button {
   border-radius:14px;
 }
 
-/* INPUTS */
 input, select {
   width:100%;
   padding:12px;
@@ -74,30 +70,11 @@ input, select {
   font-size:15px;
 }
 
-/* CARD */
 .card {
   background:#1c1c1c;
   padding:12px;
   margin-top:10px;
   border-radius:12px;
-}
-.card img {
-  width:100%;
-  border-radius:10px;
-  margin-bottom:8px;
-}
-
-.location {
-  font-size:12px;
-  color:rgba(255,255,255,0.5);
-  font-style:italic;
-  margin-top:6px;
-}
-
-.time {
-  font-size:12px;
-  color:rgba(255,255,255,0.5);
-  margin-top:4px;
 }
 
 .hidden { display:none; }
@@ -106,25 +83,21 @@ input, select {
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
-  <img id="avatar" src="">
+  <img id="avatar">
   <div class="hello" id="hello">Salom</div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('yengil')">🚗 Yengil</div>
-  <div class="tab" onclick="switchTab('orta')">🚐 O‘rta</div>
-  <div class="tab" onclick="switchTab('ogir')">🚚 Og‘ir</div>
+  <div class="tab active">🚗 Yengil</div>
+  <div class="tab">🚐 O‘rta</div>
+  <div class="tab">🚚 Og‘ir</div>
 </div>
 
-<!-- HOME -->
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
 </div>
 
-<!-- ADD -->
 <div id="add" class="hidden">
 
   <select id="category">
@@ -133,92 +106,72 @@ input, select {
     <option value="ogir">🚚 Og‘ir</option>
   </select>
 
-  <select id="region">
-    <option>Toshkent</option>
-    <option>Samarqand</option>
-    <option>Andijon</option>
-  </select>
+  <div class="card">
+    <b>📍 Qayerdan</b>
+    <select id="fromRegion" onchange="updateDistrict('from')"></select>
+    <select id="fromDistrict"></select>
+  </div>
 
-  <select id="district">
-    <option>Yunusobod</option>
-    <option>Chilonzor</option>
-    <option>Mirzo Ulug‘bek</option>
-  </select>
-
-  <!-- QAYERDAN -->
-<div class="card">
-  <b>📍 Qayerdan</b>
-  <select id="fromRegion">
-    <option>Toshkent</option>
-    <option>Samarqand</option>
-    <option>Andijon</option>
-  </select>
-
-  <select id="fromDistrict">
-    <option>Yunusobod</option>
-    <option>Chilonzor</option>
-    <option>Mirzo Ulug‘bek</option>
-  </select>
-</div>
-
-<!-- QAYERGA -->
-<div class="card">
-  <b>🎯 Qayerga</b>
-  <select id="toRegion">
-    <option>Toshkent</option>
-    <option>Samarqand</option>
-    <option>Andijon</option>
-  </select>
-
-  <select id="toDistrict">
-    <option>Yunusobod</option>
-    <option>Chilonzor</option>
-    <option>Mirzo Ulug‘bek</option>
-  </select>
-</div>
+  <div class="card">
+    <b>🎯 Qayerga</b>
+    <select id="toRegion" onchange="updateDistrict('to')"></select>
+    <select id="toDistrict"></select>
+  </div>
 
   <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
   <input type="file" id="image">
-
   <input id="contact" placeholder="Telegram yoki telefon">
 
-  <button onclick="save()">Saqlash</button>
+  <button>Saqlash</button>
   <button onclick="back()">← Orqaga</button>
 </div>
-
-<!-- LIST -->
-<div id="list"></div>
 
 <script>
 /* TELEGRAM USER */
 if (window.Telegram?.WebApp) {
   Telegram.WebApp.expand();
-  const user = Telegram.WebApp.initDataUnsafe?.user;
-  if (user) {
-    document.getElementById("hello").innerText = "Salom, " + user.first_name;
-    if (user.photo_url) {
-      document.getElementById("avatar").src = user.photo_url;
-    }
-    if (user.username) {
-      contact.value = "@" + user.username;
-    }
+  const u = Telegram.WebApp.initDataUnsafe.user;
+  if (u) {
+    hello.innerText = "Salom, " + u.first_name;
+    if (u.photo_url) avatar.src = u.photo_url;
+    if (u.username) contact.value = "@" + u.username;
   }
 }
 
-/* UI LOGIC */
+/* HUDUDLAR */
+const regions = {
+  "Toshkent shahri": ["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"],
+  "Toshkent viloyati": ["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Parkent","Yangiyo‘l","Zangiota","Chirchiq shahri","Angren shahri"],
+  "Samarqand viloyati": ["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Urgut","Samarqand shahri"],
+  "Andijon viloyati": ["Andijon","Asaka","Baliqchi","Marhamat","Shahrixon","Xo‘jaobod","Andijon shahri"],
+  "Farg‘ona viloyati": ["Bag‘dod","Beshariq","Dang‘ara","Quva","Rishton","Farg‘ona shahri","Qo‘qon shahri"]
+};
+
+/* INIT SELECT */
+function initRegions() {
+  ["from","to"].forEach(t=>{
+    const r = document.getElementById(t+"Region");
+    r.innerHTML = Object.keys(regions).map(v=>`<option>${v}</option>`).join("");
+    updateDistrict(t);
+  });
+}
+
+function updateDistrict(type) {
+  const r = document.getElementById(type+"Region").value;
+  const d = document.getElementById(type+"District");
+  d.innerHTML = regions[r].map(x=>`<option>${x}</option>`).join("");
+}
+
+initRegions();
+
+/* UI */
 function openAdd() {
   home.classList.add("hidden");
   add.classList.remove("hidden");
 }
-
 function back() {
   add.classList.add("hidden");
   home.classList.remove("hidden");
-}
-
-function switchTab(type) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  event.target.classList.add("active");
 }
 </script>
 
