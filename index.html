@@ -1,83 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>YuklaGo</title>
-
+<title>Yuklar Go</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body {
-  background:#0f0f0f;
-  color:white;
-  font-family:Arial, sans-serif;
-  padding:14px;
-  margin:0;
-}
-
-.header {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:14px;
-}
-.header img {
-  width:40px;
-  height:40px;
-  border-radius:50%;
-}
-.hello {
-  font-size:16px;
-  font-weight:600;
-}
-
-.tabs {
-  display:flex;
-  gap:6px;
-  margin-bottom:12px;
-}
-.tab {
-  flex:1;
-  padding:10px;
-  text-align:center;
-  border-radius:10px;
-  background:#1c1c1c;
-  font-size:14px;
-  cursor:pointer;
-}
-.tab.active {
-  background:#2ea6ff;
-}
-
-button {
-  width:100%;
-  padding:16px;
-  margin:8px 0;
-  font-size:16px;
-  font-weight:600;
-  background:#2ea6ff;
-  color:white;
-  border:none;
-  border-radius:14px;
-}
-
-input, select {
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:10px;
-  border:none;
-  font-size:15px;
-}
-
-.card {
-  background:#1c1c1c;
-  padding:12px;
-  margin-top:10px;
-  border-radius:12px;
-}
-
-.hidden { display:none; }
+body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.header img{width:40px;height:40px;border-radius:50%;background:#333}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:10px;background:#1c1c1c}
+.tab.active{background:#2ea6ff}
+button{width:100%;padding:16px;margin:8px 0;border:none;border-radius:14px;background:#2ea6ff;color:#fff;font-size:16px;font-weight:600}
+select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;font-size:15px}
+.card{background:#1c1c1c;padding:12px;border-radius:12px;margin-bottom:10px}
+.hidden{display:none}
 </style>
 </head>
 
@@ -85,7 +23,7 @@ input, select {
 
 <div class="header">
   <img id="avatar">
-  <div class="hello" id="hello">Salom</div>
+  <div id="hello">Salom</div>
 </div>
 
 <div class="tabs">
@@ -99,27 +37,20 @@ input, select {
 </div>
 
 <div id="add" class="hidden">
-
-  <select id="category">
-    <option value="yengil">🚗 Yengil</option>
-    <option value="orta">🚐 O‘rta</option>
-    <option value="ogir">🚚 Og‘ir</option>
-  </select>
-
   <div class="card">
     <b>📍 Qayerdan</b>
-    <select id="fromRegion" onchange="updateDistrict('from')"></select>
+    <select id="fromRegion"></select>
     <select id="fromDistrict"></select>
   </div>
 
   <div class="card">
     <b>🎯 Qayerga</b>
-    <select id="toRegion" onchange="updateDistrict('to')"></select>
+    <select id="toRegion"></select>
     <select id="toDistrict"></select>
   </div>
 
-  <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
-  <input type="file" id="image">
+  <input placeholder="Yuk (masalan: 3 tonna)">
+  <input type="file">
   <input id="contact" placeholder="Telegram yoki telefon">
 
   <button>Saqlash</button>
@@ -127,165 +58,49 @@ input, select {
 </div>
 
 <script>
-/* TELEGRAM USER */
-if (window.Telegram?.WebApp) {
+// TELEGRAM USER
+if(window.Telegram?.WebApp){
   Telegram.WebApp.expand();
-  const u = Telegram.WebApp.initDataUnsafe.user;
-  if (u) {
-    hello.innerText = "Salom, " + u.first_name;
-    if (u.photo_url) avatar.src = u.photo_url;
-    if (u.username) contact.value = "@" + u.username;
+  const u=Telegram.WebApp.initDataUnsafe.user;
+  if(u){
+    hello.innerText="Salom, "+u.first_name;
+    if(u.photo_url) avatar.src=u.photo_url;
+    if(u.username) contact.value="@"+u.username;
   }
 }
 
-/* HUDUDLAR */
-<script>
-const regionsData = {
-  "Qoraqalpog‘iston Respublikasi": [
-    "Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq",
-    "Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir",
-    "To‘rtko‘l","Xo‘jayli","Nukus shahri"
-  ],
-
-  "Andijon viloyati": [
-    "Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat",
-    "Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod",
-    "Andijon shahri","Asaka shahri","Xonobod shahri"
-  ],
-
-  "Buxoro viloyati": [
-    "Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l",
-    "Qorovulbozor","Romitan","Shofirkon","Vobkent",
-    "Buxoro shahri","Kogon shahri"
-  ],
-
-  "Jizzax viloyati": [
-    "Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l",
-    "Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"
-  ],
-
-  "Qashqadaryo viloyati": [
-    "Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor",
-    "Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘",
-    "Qarshi shahri","Shahrisabz shahri"
-  ],
-
-  "Navoiy viloyati": [
-    "Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq",
-    "Xatirchi","Navoiy shahri","Zarafshon shahri"
-  ],
-
-  "Namangan viloyati": [
-    "Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop",
-    "To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on",
-    "Namangan shahri"
-  ],
-
-  "Samarqand viloyati": [
-    "Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod",
-    "Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq",
-    "Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"
-  ],
-
-  "Surxondaryo viloyati": [
-    "Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy",
-    "Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz",
-    "Uzun","Termiz shahri"
-  ],
-
-  "Sirdaryo viloyati": [
-    "Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo",
-    "Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"
-  ],
-
-  "Toshkent viloyati": [
-    "Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on",
-    "Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq",
-    "Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri",
-    "Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"
-  ],
-
-  "Farg‘ona viloyati": [
-    "Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva",
-    "Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon",
-    "Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"
-  ],
-
-  "Xorazm viloyati": [
-    "Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot",
-    "Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"
-  ],
-
-  "Toshkent shahri": [
-    "Bektemir","Chilonzor","Yashnobod","Mirobod","Mirzo Ulug‘bek",
-    "Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy",
-    "Yunusobod"
-  ]
+// 🔥 TO‘LIQ HUDUDLAR
+const regions={
+"Qoraqalpog‘iston Respublikasi":["Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq","Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir","To‘rtko‘l","Xo‘jayli","Nukus shahri"],
+"Andijon viloyati":["Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat","Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod","Andijon shahri","Asaka shahri","Xonobod shahri"],
+"Buxoro viloyati":["Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent","Buxoro shahri","Kogon shahri"],
+"Jizzax viloyati":["Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l","Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"],
+"Qashqadaryo viloyati":["Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor","Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘","Qarshi shahri","Shahrisabz shahri"],
+"Navoiy viloyati":["Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Navoiy shahri","Zarafshon shahri"],
+"Namangan viloyati":["Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop","To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on","Namangan shahri"],
+"Samarqand viloyati":["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod","Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq","Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"],
+"Surxondaryo viloyati":["Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz","Uzun","Termiz shahri"],
+"Sirdaryo viloyati":["Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo","Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"],
+"Toshkent viloyati":["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq","Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri","Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"],
+"Farg‘ona viloyati":["Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon","Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"],
+"Xorazm viloyati":["Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot","Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"],
+"Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
 };
-</script>
-<script>
-function fillRegions(regionSelect, districtSelect) {
-  regionSelect.innerHTML = "";
-  districtSelect.innerHTML = "";
 
-  Object.keys(regionsData).forEach(region => {
-    const opt = document.createElement("option");
-    opt.value = region;
-    opt.textContent = region;
-    regionSelect.appendChild(opt);
-  });
-
-  regionSelect.onchange = () => {
-    districtSelect.innerHTML = "";
-    regionsData[regionSelect.value].forEach(d => {
-      const opt = document.createElement("option");
-      opt.textContent = d;
-      districtSelect.appendChild(opt);
-    });
-  };
-
-  regionSelect.onchange();
+// INIT
+function init(){
+["from","to"].forEach(t=>{
+  const r=document.getElementById(t+"Region");
+  const d=document.getElementById(t+"District");
+  r.innerHTML=Object.keys(regions).map(v=>`<option>${v}</option>`).join("");
+  r.onchange=()=>d.innerHTML=regions[r.value].map(x=>`<option>${x}</option>`).join("");
+  r.onchange();
+});
 }
+init();
 
-// Qayerdan
-fillRegions(
-  document.getElementById("fromRegion"),
-  document.getElementById("fromDistrict")
-);
-
-// Qayerga
-fillRegions(
-  document.getElementById("toRegion"),
-  document.getElementById("toDistrict")
-);
-</script>
-
-/* INIT SELECT */
-function initRegions() {
-  ["from","to"].forEach(t=>{
-    const r = document.getElementById(t+"Region");
-    r.innerHTML = Object.keys(regions).map(v=>`<option>${v}</option>`).join("");
-    updateDistrict(t);
-  });
-}
-
-function updateDistrict(type) {
-  const r = document.getElementById(type+"Region").value;
-  const d = document.getElementById(type+"District");
-  d.innerHTML = regions[r].map(x=>`<option>${x}</option>`).join("");
-}
-
-initRegions();
-
-/* UI */
-function openAdd() {
-  home.classList.add("hidden");
-  add.classList.remove("hidden");
-}
-function back() {
-  add.classList.add("hidden");
-  home.classList.remove("hidden");
-}
+function openAdd(){home.classList.add("hidden");add.classList.remove("hidden")}
+function back(){add.classList.add("hidden");home.classList.remove("hidden")}
 </script>
 
 </body>
