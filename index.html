@@ -8,10 +8,11 @@ body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial;font-
 .header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .header img{width:50px;height:50px;border-radius:50%;background:#333;}
 button{width:100%;padding:18px;margin:10px 0;border:none;border-radius:16px;background:#2ea6ff;color:#fff;font-size:18px;font-weight:600;cursor:pointer}
-select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none;font-size:17px}
+select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none;font-size:17px;font-style:italic;}
 .card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
 .load-card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
 .location{font-size:14px;color:rgba(255,255,255,0.6);font-style:italic;margin-top:4px}
+.date{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
 .hidden{display:none}
 #home{margin-bottom:10px}
 .tabs{display:flex;gap:8px;margin-bottom:20px;}
@@ -64,7 +65,7 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
     <select id="toDistrict"></select>
   </div>
 
-  <input id="weight" placeholder="Yuk nomi va miqdorini yozing">
+  <input id="weight" placeholder="*Yukingiz nomi va qanchaligini yozing!*">
   <input id="contact" placeholder="Telegram yoki telefon">
 
   <button onclick="save()">Saqlash</button>
@@ -107,10 +108,11 @@ function init(){
 ["from","to"].forEach(t=>{
   const r=document.getElementById(t+"Region");
   const d=document.getElementById(t+"District");
-  r.innerHTML=Object.keys(regions).map(v=>`<option>${v.slice(0,3)}</option>`).join("");
+  // viloyatni faqat 3 harf bilan ko'rsatish
+  r.innerHTML=Object.keys(regions).map(v=>`<option value="${v}">${v.slice(0,3)}</option>`).join("");
   r.onchange=()=>{
-    const fullName = Object.keys(regions).find(k=>k.slice(0,3)===r.value);
-    d.innerHTML=regions[fullName].map(x=>`<option>${x}</option>`).join("");
+    const selectedFull = r.options[r.selectedIndex].value;
+    d.innerHTML=regions[selectedFull].map(x=>`<option>${x}</option>`).join("");
   };
   r.onchange();
 });
@@ -136,7 +138,8 @@ function save(){
     from: fromRegion.value+" / "+fromDistrict.value,
     to: toRegion.value+" / "+toDistrict.value,
     weight: weight.value,
-    contact: contact.value
+    contact: contact.value,
+    date: new Date().toLocaleString()
   };
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
   arr.unshift(data);
@@ -156,6 +159,7 @@ function render(){
           <b>${l.weight||"Yuk"}</b>
           <div class="location">📍 ${l.from} → ${l.to}</div>
           <div class="location">📞 ${l.contact||""}</div>
+          <div class="date">🕒 ${l.date}</div>
         </div>
       </div>`;
   });
