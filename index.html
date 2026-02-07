@@ -85,8 +85,23 @@ if(window.Telegram?.WebApp){
   }
 }
 
-// HUDUDLAR
-const regions={"Toshkent shahri":["Yunusobod","Chilonzor","Mirzo Ulug‘bek"]};
+// 🔥 TO‘LIQ HUDUDLAR
+const regions={
+"Qoraqalpog‘iston Respublikasi":["Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq","Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir","To‘rtko‘l","Xo‘jayli","Nukus shahri"],
+"Andijon viloyati":["Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat","Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod","Andijon shahri","Asaka shahri","Xonobod shahri"],
+"Buxoro viloyati":["Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent","Buxoro shahri","Kogon shahri"],
+"Jizzax viloyati":["Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l","Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"],
+"Qashqadaryo viloyati":["Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor","Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘","Qarshi shahri","Shahrisabz shahri"],
+"Navoiy viloyati":["Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Navoiy shahri","Zarafshon shahri"],
+"Namangan viloyati":["Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop","To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on","Namangan shahri"],
+"Samarqand viloyati":["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod","Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq","Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"],
+"Surxondaryo viloyati":["Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz","Uzun","Termiz shahri"],
+"Sirdaryo viloyati":["Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo","Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"],
+"Toshkent viloyati":["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq","Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri","Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"],
+"Farg‘ona viloyati":["Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon","Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"],
+"Xorazm viloyati":["Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot","Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"],
+"Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
+};
 
 function init(){
 ["from","to"].forEach(t=>{
