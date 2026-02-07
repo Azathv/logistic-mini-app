@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Yuklar Go</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
 body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial;font-size:16px;}
 .header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -13,21 +11,19 @@ button{width:100%;padding:18px;margin:10px 0;border:none;border-radius:16px;back
 select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none;font-size:17px}
 .card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
 .load-card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
-.load-card img{width:100%;border-radius:12px;margin-top:10px}
-.location{font-size:14px;color:rgba(255,255,255,0.6);font-style:italic;margin-top:8px}
+.location{font-size:14px;color:rgba(255,255,255,0.6);font-style:italic;margin-top:4px}
 .hidden{display:none}
-/* TABLAR PASTDA */
-.tabs{display:flex;gap:8px;position:fixed;bottom:14px;left:14px;right:14px;z-index:100;}
-.tab{flex:1;padding:16px;text-align:center;border-radius:12px;background:#1c1c1c;cursor:pointer;font-size:18px}
+#home{margin-bottom:10px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;}
+.tab{flex:1;padding:14px;text-align:center;border-radius:12px;background:#1c1c1c;cursor:pointer;font-size:18px}
 .tab.active{background:#2ea6ff}
-#list{margin-bottom:100px}
+#list{margin-bottom:50px}
 
-/* MOBIL */
 @media(max-width:600px){
   body{font-size:18px;}
   button{padding:22px;font-size:20px;}
   select,input{padding:18px;font-size:18px;}
-  .tab{padding:18px;font-size:20px;}
+  .tab{padding:16px;font-size:20px;}
   .header img{width:60px;height:60px;}
 }
 </style>
@@ -40,12 +36,15 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
   <div id="hello">Salom</div>
 </div>
 
-<!-- TUGMA YUK JOYLASH -->
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
+    <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
+    <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
+  </div>
 </div>
 
-<!-- FORM -->
 <div id="add" class="hidden">
   <select id="category">
     <option value="yengil">🚗 Yengil</option>
@@ -66,7 +65,6 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
   </div>
 
   <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
-  <input type="file" id="image" accept="image/*">
   <input id="contact" placeholder="Telegram yoki telefon">
 
   <button onclick="save()">Saqlash</button>
@@ -74,13 +72,6 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
 </div>
 
 <div id="list"></div>
-
-<!-- 3 TA RAZDEL PASTDA -->
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
-  <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
-  <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
-</div>
 
 <script>
 // TELEGRAM USER
@@ -94,23 +85,8 @@ if(window.Telegram?.WebApp){
   }
 }
 
-// 🔥 TO‘LIQ HUDUDLAR
-const regions={
-"Qoraqalpog‘iston Respublikasi":["Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq","Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir","To‘rtko‘l","Xo‘jayli","Nukus shahri"],
-"Andijon viloyati":["Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat","Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod","Andijon shahri","Asaka shahri","Xonobod shahri"],
-"Buxoro viloyati":["Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent","Buxoro shahri","Kogon shahri"],
-"Jizzax viloyati":["Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l","Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"],
-"Qashqadaryo viloyati":["Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor","Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘","Qarshi shahri","Shahrisabz shahri"],
-"Navoiy viloyati":["Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Navoiy shahri","Zarafshon shahri"],
-"Namangan viloyati":["Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop","To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on","Namangan shahri"],
-"Samarqand viloyati":["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod","Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq","Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"],
-"Surxondaryo viloyati":["Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz","Uzun","Termiz shahri"],
-"Sirdaryo viloyati":["Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo","Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"],
-"Toshkent viloyati":["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq","Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri","Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"],
-"Farg‘ona viloyati":["Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon","Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"],
-"Xorazm viloyati":["Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot","Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"],
-"Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
-};
+// HUDUDLAR
+const regions={"Toshkent shahri":["Yunusobod","Chilonzor","Mirzo Ulug‘bek"]};
 
 function init(){
 ["from","to"].forEach(t=>{
@@ -142,25 +118,8 @@ function save(){
     from: fromRegion.value+" / "+fromDistrict.value,
     to: toRegion.value+" / "+toDistrict.value,
     weight: weight.value,
-    contact: contact.value,
-    image:null
+    contact: contact.value
   };
-
-  const file=image.files[0];
-  if(file){
-    // Rasmni kichik qilib ko‘rsatish (mobil uchun)
-    const reader=new FileReader();
-    reader.onload=()=>{
-      data.image=reader.result; // faqat ko‘rsatish uchun
-      pushData(data);
-    };
-    reader.readAsDataURL(file);
-  }else{
-    pushData(data);
-  }
-}
-
-function pushData(data){
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
   arr.unshift(data);
   localStorage.setItem("loads",JSON.stringify(arr));
@@ -175,9 +134,11 @@ function render(){
   arr.filter(l=>l.category===activeCategory).forEach(l=>{
     list.innerHTML+=`
       <div class="load-card">
-        <b>${l.weight||"Yuk"}</b>
-        <div class="location">📍 ${l.from} → ${l.to}</div>
-        ${l.image?`<img src="${l.image}">`:""}
+        <div>
+          <b>${l.weight||"Yuk"}</b>
+          <div class="location">📍 ${l.from} → ${l.to}</div>
+          <div class="location">📞 ${l.contact||""}</div>
+        </div>
       </div>`;
   });
 }
