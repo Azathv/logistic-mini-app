@@ -6,33 +6,117 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial}
-.header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.header img{width:40px;height:40px;border-radius:50%;background:#333}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
-.tab{flex:1;padding:10px;text-align:center;border-radius:10px;background:#1c1c1c;cursor:pointer}
-.tab.active{background:#2ea6ff}
-button{width:100%;padding:16px;margin:8px 0;border:none;border-radius:14px;background:#2ea6ff;color:#fff;font-size:16px;font-weight:600}
-select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;font-size:15px}
-.card{background:#1c1c1c;padding:12px;border-radius:12px;margin-bottom:10px}
-.hidden{display:none}
+/* ASOSIY BODY */
+body{
+  margin:0;
+  padding:14px;
+  background:#0f0f0f;
+  color:#fff;
+  font-family:Arial;
+  font-size:16px;
+}
 
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.header img{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#333;
+}
+
+/* BUTTONLAR */
+button{
+  width:100%;
+  padding:20px;
+  margin:10px 0;
+  border:none;
+  border-radius:16px;
+  background:#2ea6ff;
+  color:#fff;
+  font-size:18px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* INPUT VA SELECT */
+select,input{
+  width:100%;
+  padding:16px;
+  margin:8px 0;
+  border-radius:14px;
+  border:none;
+  font-size:17px;
+}
+
+/* KARTALAR */
+.card{
+  background:#1c1c1c;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:12px;
+}
+
+/* YUK KARTALARI */
 .load-card{
   background:#1c1c1c;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:12px;
 }
 .load-card img{
   width:100%;
-  border-radius:10px;
-  margin-top:8px;
+  border-radius:12px;
+  margin-top:10px;
 }
 .location{
-  font-size:12px;
-  color:rgba(255,255,255,0.5);
+  font-size:14px;
+  color:rgba(255,255,255,0.6);
   font-style:italic;
-  margin-top:6px;
+  margin-top:8px;
+}
+
+/* FORMANI YASHIRISH */
+.hidden{display:none}
+
+/* TABLAR - EN PASTDA */
+.tabs{
+  display:flex;
+  gap:8px;
+  position:fixed;
+  bottom:14px;
+  left:14px;
+  right:14px;
+  z-index:100;
+}
+.tab{
+  flex:1;
+  padding:14px;
+  text-align:center;
+  border-radius:12px;
+  background:#1c1c1c;
+  cursor:pointer;
+  font-size:16px;
+}
+.tab.active{background:#2ea6ff}
+
+/* MOBILDA QIYIN KO‘RINMASLIK UCHUN SCROLL */
+#list{
+  margin-bottom:90px;
+}
+
+/* MEDIA QUERY MOBIL UCHUN */
+@media (max-width:600px){
+  body{font-size:18px;}
+  button{padding:22px;font-size:20px;}
+  select,input{padding:18px;font-size:18px;}
+  .tab{padding:16px;font-size:18px;}
+  .header img{width:60px;height:60px;}
 }
 </style>
 </head>
@@ -44,16 +128,12 @@ select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none
   <div id="hello">Salom</div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
-  <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
-  <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
-</div>
-
+<!-- TUGMA EN TEPADA -->
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
 </div>
 
+<!-- YUK JOYLASH FORMASI -->
 <div id="add" class="hidden">
 
   <select id="category">
@@ -82,7 +162,15 @@ select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none
   <button onclick="back()">← Orqaga</button>
 </div>
 
+<!-- YUKLAR RO‘YXATI -->
 <div id="list"></div>
+
+<!-- KATEGORIYA TABLARI EN PASTDA -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
+  <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
+  <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
+</div>
 
 <script>
 // TELEGRAM USER
@@ -96,8 +184,23 @@ if(window.Telegram?.WebApp){
   }
 }
 
-// HUDUDLAR (QISQA QOLDIRILDI – SENDA BOR)
-const regions={"Toshkent shahri":["Yunusobod","Chilonzor","Mirzo Ulug‘bek"]};
+// 🔥 TO‘LIQ HUDUDLAR
+const regions={
+"Qoraqalpog‘iston Respublikasi":["Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq","Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir","To‘rtko‘l","Xo‘jayli","Nukus shahri"],
+"Andijon viloyati":["Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat","Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod","Andijon shahri","Asaka shahri","Xonobod shahri"],
+"Buxoro viloyati":["Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent","Buxoro shahri","Kogon shahri"],
+"Jizzax viloyati":["Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l","Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"],
+"Qashqadaryo viloyati":["Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor","Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘","Qarshi shahri","Shahrisabz shahri"],
+"Navoiy viloyati":["Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Navoiy shahri","Zarafshon shahri"],
+"Namangan viloyati":["Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop","To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on","Namangan shahri"],
+"Samarqand viloyati":["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod","Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq","Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"],
+"Surxondaryo viloyati":["Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz","Uzun","Termiz shahri"],
+"Sirdaryo viloyati":["Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo","Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"],
+"Toshkent viloyati":["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq","Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri","Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"],
+"Farg‘ona viloyati":["Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon","Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"],
+"Xorazm viloyati":["Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot","Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"],
+"Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
+};
 
 function init(){
 ["from","to"].forEach(t=>{
@@ -110,10 +213,11 @@ function init(){
 }
 init();
 
+// FORMANI OCHISH VA ORQAGA QAYTISH
 function openAdd(){home.classList.add("hidden");add.classList.remove("hidden")}
 function back(){add.classList.add("hidden");home.classList.remove("hidden")}
 
-// ====== CATEGORY LOGIC ======
+// CATEGORY LOGIC
 let activeCategory="yengil";
 
 function switchTab(cat,el){
@@ -123,7 +227,7 @@ function switchTab(cat,el){
   render();
 }
 
-// ====== SAQLASH ======
+// SAQLASH
 function save(){
   const data={
     category: category.value,
@@ -155,7 +259,7 @@ function pushData(data){
   back();
 }
 
-// ====== CHIQARISH ======
+// CHIQARISH
 function render(){
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
   list.innerHTML="";
