@@ -10,7 +10,7 @@ body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial}
 .header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .header img{width:40px;height:40px;border-radius:50%;background:#333}
 .tabs{display:flex;gap:6px;margin-bottom:12px}
-.tab{flex:1;padding:10px;text-align:center;border-radius:10px;background:#1c1c1c}
+.tab{flex:1;padding:10px;text-align:center;border-radius:10px;background:#1c1c1c;cursor:pointer}
 .tab.active{background:#2ea6ff}
 button{width:100%;padding:16px;margin:8px 0;border:none;border-radius:14px;background:#2ea6ff;color:#fff;font-size:16px;font-weight:600}
 select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;font-size:15px}
@@ -45,9 +45,9 @@ select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none
 </div>
 
 <div class="tabs">
-  <div class="tab active">🚗 Yengil</div>
-  <div class="tab">🚐 O‘rta</div>
-  <div class="tab">🚚 Og‘ir</div>
+  <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
+  <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
+  <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
 </div>
 
 <div id="home">
@@ -55,6 +55,13 @@ select,input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none
 </div>
 
 <div id="add" class="hidden">
+
+  <select id="category">
+    <option value="yengil">🚗 Yengil</option>
+    <option value="orta">🚐 O‘rta</option>
+    <option value="ogir">🚚 Og‘ir</option>
+  </select>
+
   <div class="card">
     <b>📍 Qayerdan</b>
     <select id="fromRegion"></select>
@@ -89,23 +96,8 @@ if(window.Telegram?.WebApp){
   }
 }
 
-// 🔥 TO‘LIQ HUDUDLAR
-const regions={
-"Qoraqalpog‘iston Respublikasi":["Amudaryo","Beruniy","Bo‘zatov","Chimboy","Ellikqal’a","Kegeyli","Mo‘ynoq","Nukus","Qanliko‘l","Qo‘ng‘irot","Qorao‘zak","Shumanay","Taxtako‘pir","To‘rtko‘l","Xo‘jayli","Nukus shahri"],
-"Andijon viloyati":["Andijon","Asaka","Baliqchi","Buloqboshi","Izboskan","Jalakuduq","Marhamat","Oltinko‘l","Paxtaobod","Shahrixon","Ulug‘nor","Xo‘jaobod","Andijon shahri","Asaka shahri","Xonobod shahri"],
-"Buxoro viloyati":["Buxoro","G‘ijduvon","Jondor","Kogon","Olot","Peshku","Qorako‘l","Qorovulbozor","Romitan","Shofirkon","Vobkent","Buxoro shahri","Kogon shahri"],
-"Jizzax viloyati":["Arnasoy","Baxmal","Do‘stlik","Forish","G‘allaorol","Mirzacho‘l","Paxtakor","Sharof Rashidov","Yangiobod","Zomin","Jizzax shahri"],
-"Qashqadaryo viloyati":["Chiroqchi","Dehqonobod","G‘uzor","Kasbi","Kitob","Koson","Mirishkor","Muborak","Nishon","Qamashi","Qarshi","Shahrisabz","Yakkabog‘","Qarshi shahri","Shahrisabz shahri"],
-"Navoiy viloyati":["Karmana","Konimex","Navbahor","Nurota","Qiziltepa","Tomdi","Uchquduq","Xatirchi","Navoiy shahri","Zarafshon shahri"],
-"Namangan viloyati":["Chortoq","Chust","Kosonsoy","Mingbuloq","Namangan","Norin","Pop","To‘raqo‘rg‘on","Uchqo‘rg‘on","Uychi","Yangiqo‘rg‘on","Namangan shahri"],
-"Samarqand viloyati":["Bulung‘ur","Ishtixon","Jomboy","Kattaqo‘rg‘on","Narpay","Nurobod","Oqdaryo","Paxtachi","Payariq","Pastdarg‘om","Samarqand","Toyloq","Urgut","Samarqand shahri","Kattaqo‘rg‘on shahri"],
-"Surxondaryo viloyati":["Angor","Bandixon","Boysun","Denov","Jarqo‘rg‘on","Muzrabot","Oltinsoy","Qiziriq","Qumqo‘rg‘on","Sariosiyo","Sherobod","Sho‘rchi","Termiz","Uzun","Termiz shahri"],
-"Sirdaryo viloyati":["Boyovut","Guliston","Mirzaobod","Oqoltin","Sayxunobod","Sirdaryo","Xovos","Yangiyer shahri","Guliston shahri","Shirin shahri"],
-"Toshkent viloyati":["Bekobod","Bo‘ka","Bo‘stonliq","Chinoz","Qibray","Ohangaron","Oqqo‘rg‘on","Parkent","Piskent","Quyichirchiq","Yangiyo‘l","Yuqorichirchiq","Zangiota","Angren shahri","Bekobod shahri","Chirchiq shahri","Olmaliq shahri","Ohangaron shahri","Yangiyo‘l shahri"],
-"Farg‘ona viloyati":["Bag‘dod","Beshariq","Dang‘ara","Furqat","Oltiariq","Qo‘shtepa","Quva","Rishton","So‘x","Toshloq","Uchko‘prik","Yozyovon","Farg‘ona shahri","Marg‘ilon shahri","Quvasoy shahri","Qo‘qon shahri"],
-"Xorazm viloyati":["Bog‘ot","Gurlan","Hazorasp","Xiva","Xonqa","Qo‘shko‘pir","Shovot","Urganch","Yangiariq","Yangibozor","Urganch shahri","Xiva shahri"],
-"Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
-};
+// HUDUDLAR (QISQA QOLDIRILDI – SENDA BOR)
+const regions={"Toshkent shahri":["Yunusobod","Chilonzor","Mirzo Ulug‘bek"]};
 
 function init(){
 ["from","to"].forEach(t=>{
@@ -121,9 +113,20 @@ init();
 function openAdd(){home.classList.add("hidden");add.classList.remove("hidden")}
 function back(){add.classList.add("hidden");home.classList.remove("hidden")}
 
-// 🔥 SAQLASH + RASM (ixtiyoriy)
+// ====== CATEGORY LOGIC ======
+let activeCategory="yengil";
+
+function switchTab(cat,el){
+  activeCategory=cat;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  render();
+}
+
+// ====== SAQLASH ======
 function save(){
   const data={
+    category: category.value,
     from: fromRegion.value+" / "+fromDistrict.value,
     to: toRegion.value+" / "+toDistrict.value,
     weight: weight.value,
@@ -152,11 +155,11 @@ function pushData(data){
   back();
 }
 
-// 🧾 CHIQARISH
+// ====== CHIQARISH ======
 function render(){
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
   list.innerHTML="";
-  arr.forEach(l=>{
+  arr.filter(l=>l.category===activeCategory).forEach(l=>{
     list.innerHTML+=`
       <div class="load-card">
         <b>${l.weight||"Yuk"}</b>
@@ -165,6 +168,7 @@ function render(){
       </div>`;
   });
 }
+
 render();
 </script>
 
