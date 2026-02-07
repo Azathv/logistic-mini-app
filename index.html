@@ -64,7 +64,7 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
     <select id="toDistrict"></select>
   </div>
 
-  <input id="weight" placeholder="Yuk (masalan: 3 tonna)">
+  <input id="weight" placeholder="Yuk nomi va miqdorini yozing">
   <input id="contact" placeholder="Telegram yoki telefon">
 
   <button onclick="save()">Saqlash</button>
@@ -107,8 +107,11 @@ function init(){
 ["from","to"].forEach(t=>{
   const r=document.getElementById(t+"Region");
   const d=document.getElementById(t+"District");
-  r.innerHTML=Object.keys(regions).map(v=>`<option>${v}</option>`).join("");
-  r.onchange=()=>d.innerHTML=regions[r.value].map(x=>`<option>${x}</option>`).join("");
+  r.innerHTML=Object.keys(regions).map(v=>`<option>${v.slice(0,3)}</option>`).join("");
+  r.onchange=()=>{
+    const fullName = Object.keys(regions).find(k=>k.slice(0,3)===r.value);
+    d.innerHTML=regions[fullName].map(x=>`<option>${x}</option>`).join("");
+  };
   r.onchange();
 });
 }
