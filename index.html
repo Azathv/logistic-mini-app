@@ -44,6 +44,11 @@ select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none
     <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
     <div class="tab" onclick="switchTab('ogir',this)">🚚 Og‘ir</div>
   </div>
+
+  <!-- Viloyat bo'yicha filter -->
+  <select id="filterRegion" onchange="render()">
+    <option value="">📍 Viloyat bo'yicha filtr</option>
+  </select>
 </div>
 
 <div id="add" class="hidden">
@@ -104,18 +109,25 @@ const regions={
 "Toshkent shahri":["Bektemir","Chilonzor","Mirobod","Mirzo Ulug‘bek","Olmazor","Sergeli","Shayxontohur","Uchtepa","Yakkasaroy","Yunusobod","Yashnobod"]
 };
 
+// INIT SELECTS
 function init(){
-["from","to"].forEach(t=>{
-  const r=document.getElementById(t+"Region");
-  const d=document.getElementById(t+"District");
-  // viloyatni faqat 3 harf bilan ko'rsatish
-  r.innerHTML=Object.keys(regions).map(v=>`<option value="${v}">${v.slice(0,3)}</option>`).join("");
-  r.onchange=()=>{
-    const selectedFull = r.options[r.selectedIndex].value;
-    d.innerHTML=regions[selectedFull].map(x=>`<option>${x}</option>`).join("");
-  };
-  r.onchange();
-});
+  ["from","to"].forEach(t=>{
+    const r=document.getElementById(t+"Region");
+    const d=document.getElementById(t+"District");
+    r.innerHTML=Object.keys(regions).map(v=>`<option value="${v}">${v}</option>`).join("");
+    r.onchange=()=>{
+      const selectedFull = r.value;
+      d.innerHTML=regions[selectedFull].map(x=>`<option>${x}</option>`).join("");
+    };
+    r.onchange();
+  });
+
+  // Filter selectni to'ldirish
+  const filter=document.getElementById("filterRegion");
+  filter.innerHTML='<option value="">📍 Viloyat bo\'yicha filtr</option>';
+  Object.keys(regions).forEach(v=>{
+    filter.innerHTML+=`<option value="${v}">${v}</option>`;
+  });
 }
 init();
 
@@ -135,8 +147,8 @@ function switchTab(cat,el){
 function save(){
   const data={
     category: category.value,
-    from: fromRegion.value+" / "+fromDistrict.value,
-    to: toRegion.value+" / "+toDistrict.value,
+    from: fromRegion.value.slice(0,3)+" / "+fromDistrict.value,
+    to: toRegion.value.slice(0,3)+" / "+toDistrict.value,
     weight: weight.value,
     contact: contact.value,
     date: new Date().toLocaleString()
@@ -151,8 +163,12 @@ function save(){
 // RENDER
 function render(){
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
+  const filterRegion = document.getElementById("filterRegion").value;
   list.innerHTML="";
-  arr.filter(l=>l.category===activeCategory).forEach(l=>{
+  arr.filter(l=>{
+    return l.category===activeCategory &&
+           (filterRegion==="" || l.from.startsWith(filterRegion.slice(0,3)));
+  }).forEach(l=>{
     list.innerHTML+=`
       <div class="load-card">
         <div>
