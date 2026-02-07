@@ -6,116 +6,28 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-/* ASOSIY BODY */
-body{
-  margin:0;
-  padding:14px;
-  background:#0f0f0f;
-  color:#fff;
-  font-family:Arial;
-  font-size:16px;
-}
-
-/* HEADER */
-.header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:14px;
-}
-.header img{
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  background:#333;
-}
-
-/* BUTTONLAR */
-button{
-  width:100%;
-  padding:20px;
-  margin:10px 0;
-  border:none;
-  border-radius:16px;
-  background:#2ea6ff;
-  color:#fff;
-  font-size:18px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-/* INPUT VA SELECT */
-select,input{
-  width:100%;
-  padding:16px;
-  margin:8px 0;
-  border-radius:14px;
-  border:none;
-  font-size:17px;
-}
-
-/* KARTALAR */
-.card{
-  background:#1c1c1c;
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:12px;
-}
-
-/* YUK KARTALARI */
-.load-card{
-  background:#1c1c1c;
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:12px;
-}
-.load-card img{
-  width:100%;
-  border-radius:12px;
-  margin-top:10px;
-}
-.location{
-  font-size:14px;
-  color:rgba(255,255,255,0.6);
-  font-style:italic;
-  margin-top:8px;
-}
-
-/* FORMANI YASHIRISH */
+body{margin:0;padding:14px;background:#0f0f0f;color:#fff;font-family:Arial;font-size:16px;}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.header img{width:50px;height:50px;border-radius:50%;background:#333;}
+button{width:100%;padding:18px;margin:10px 0;border:none;border-radius:16px;background:#2ea6ff;color:#fff;font-size:18px;font-weight:600;cursor:pointer}
+select,input{width:100%;padding:16px;margin:8px 0;border-radius:14px;border:none;font-size:17px}
+.card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
+.load-card{background:#1c1c1c;padding:16px;border-radius:14px;margin-bottom:12px}
+.load-card img{width:100%;border-radius:12px;margin-top:10px}
+.location{font-size:14px;color:rgba(255,255,255,0.6);font-style:italic;margin-top:8px}
 .hidden{display:none}
-
-/* TABLAR - EN PASTDA */
-.tabs{
-  display:flex;
-  gap:8px;
-  position:fixed;
-  bottom:14px;
-  left:14px;
-  right:14px;
-  z-index:100;
-}
-.tab{
-  flex:1;
-  padding:14px;
-  text-align:center;
-  border-radius:12px;
-  background:#1c1c1c;
-  cursor:pointer;
-  font-size:16px;
-}
+/* TABLAR PASTDA */
+.tabs{display:flex;gap:8px;position:fixed;bottom:14px;left:14px;right:14px;z-index:100;}
+.tab{flex:1;padding:16px;text-align:center;border-radius:12px;background:#1c1c1c;cursor:pointer;font-size:18px}
 .tab.active{background:#2ea6ff}
+#list{margin-bottom:100px}
 
-/* MOBILDA QIYIN KO‘RINMASLIK UCHUN SCROLL */
-#list{
-  margin-bottom:90px;
-}
-
-/* MEDIA QUERY MOBIL UCHUN */
-@media (max-width:600px){
+/* MOBIL */
+@media(max-width:600px){
   body{font-size:18px;}
   button{padding:22px;font-size:20px;}
   select,input{padding:18px;font-size:18px;}
-  .tab{padding:16px;font-size:18px;}
+  .tab{padding:18px;font-size:20px;}
   .header img{width:60px;height:60px;}
 }
 </style>
@@ -128,14 +40,13 @@ select,input{
   <div id="hello">Salom</div>
 </div>
 
-<!-- TUGMA EN TEPADA -->
+<!-- TUGMA YUK JOYLASH -->
 <div id="home">
   <button onclick="openAdd()">➕ Yuk joylash</button>
 </div>
 
-<!-- YUK JOYLASH FORMASI -->
+<!-- FORM -->
 <div id="add" class="hidden">
-
   <select id="category">
     <option value="yengil">🚗 Yengil</option>
     <option value="orta">🚐 O‘rta</option>
@@ -162,10 +73,9 @@ select,input{
   <button onclick="back()">← Orqaga</button>
 </div>
 
-<!-- YUKLAR RO‘YXATI -->
 <div id="list"></div>
 
-<!-- KATEGORIYA TABLARI EN PASTDA -->
+<!-- 3 TA RAZDEL PASTDA -->
 <div class="tabs">
   <div class="tab active" onclick="switchTab('yengil',this)">🚗 Yengil</div>
   <div class="tab" onclick="switchTab('orta',this)">🚐 O‘rta</div>
@@ -213,13 +123,11 @@ function init(){
 }
 init();
 
-// FORMANI OCHISH VA ORQAGA QAYTISH
 function openAdd(){home.classList.add("hidden");add.classList.remove("hidden")}
 function back(){add.classList.add("hidden");home.classList.remove("hidden")}
 
-// CATEGORY LOGIC
+// CATEGORY
 let activeCategory="yengil";
-
 function switchTab(cat,el){
   activeCategory=cat;
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -227,7 +135,7 @@ function switchTab(cat,el){
   render();
 }
 
-// SAQLASH
+// SAVE
 function save(){
   const data={
     category: category.value,
@@ -235,14 +143,15 @@ function save(){
     to: toRegion.value+" / "+toDistrict.value,
     weight: weight.value,
     contact: contact.value,
-    image: null
+    image:null
   };
 
   const file=image.files[0];
   if(file){
+    // Rasmni kichik qilib ko‘rsatish (mobil uchun)
     const reader=new FileReader();
     reader.onload=()=>{
-      data.image=reader.result;
+      data.image=reader.result; // faqat ko‘rsatish uchun
       pushData(data);
     };
     reader.readAsDataURL(file);
@@ -259,7 +168,7 @@ function pushData(data){
   back();
 }
 
-// CHIQARISH
+// RENDER
 function render(){
   const arr=JSON.parse(localStorage.getItem("loads")||"[]");
   list.innerHTML="";
